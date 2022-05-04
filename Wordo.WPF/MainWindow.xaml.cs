@@ -3,18 +3,17 @@ using Wordo.Models;
 using Wordo.Services;
 using Wordo.ViewModels;
 
-namespace Wordo.WPF
+namespace Wordo.WPF;
+
+public partial class MainWindow : Window
 {
-    public partial class MainWindow : Window
+    public MainWindow(string userSecretsToken)
     {
-        public MainWindow(string userSecretsToken)
-        {
-            InitializeComponent();
+        InitializeComponent();
 
-            WordoConfiguration wordoConfiguration =
-                PersistenceService.GetWordoConfiguration(userSecretsToken);
+        WordoConfiguration wordoConfiguration =
+            PersistenceService.GetWordoConfiguration(userSecretsToken);
 
-            DataContext = new WordoInstance(wordoConfiguration);
-        }
+        DataContext = new WordoInstance(wordoConfiguration);
     }
 }

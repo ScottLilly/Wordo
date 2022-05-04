@@ -10,6 +10,9 @@ namespace Wordo.ViewModels;
 
 public class WordoInstance
 {
+    private readonly TaskFactory _uiFactory =
+        new TaskFactory(TaskScheduler.FromCurrentSynchronizationContext());
+
     private readonly WordoConfiguration _wordoConfiguration;
     private readonly ConnectionCredentials _credentials;
     private readonly TwitchClient _client = new();
@@ -25,7 +28,9 @@ public class WordoInstance
             new ConnectionCredentials(
                 string.IsNullOrWhiteSpace(wordoConfiguration.BotAccountName)
                     ? wordoConfiguration.ChannelName
-                    : wordoConfiguration.BotAccountName, wordoConfiguration.TwitchToken, disableUsernameCheck: true);
+                    : wordoConfiguration.BotAccountName,
+                wordoConfiguration.TwitchToken,
+                disableUsernameCheck: true);
 
         _client.OnDisconnected += HandleDisconnected;
         _client.OnChatCommandReceived += OnChatCommandReceived;
@@ -36,7 +41,7 @@ public class WordoInstance
     private void OnChatCommandReceived(object? sender, OnChatCommandReceivedArgs e)
     {
         // Only handle "!wordo" commands that include a parameter
-        if (!e.Command.CommandText.Matches("wordo") ||
+        if (!e.Command.CommandText.StartsWith("wordo", StringComparison.InvariantCultureIgnoreCase) ||
             !e.Command.ArgumentsAsList.Any())
         {
             return;
@@ -44,6 +49,7 @@ public class WordoInstance
 
         string wordoArgument = e.Command.ArgumentsAsList[0];
 
+        // Handle broadcaster/mod commands
         if (e.Command.ChatMessage.IsBroadcaster ||
             e.Command.ChatMessage.IsModerator)
         {
@@ -55,6 +61,7 @@ public class WordoInstance
             }
         }
 
+        // Handle all other commands
         
     }
 
@@ -62,11 +69,11 @@ public class WordoInstance
     {
         string word = _wordoConfiguration.Words.RandomElement();
 
-        Letters.Clear();
+        _uiFactory.StartNew(() => Letters.Clear());
 
         foreach (char c in word.ToList())
         {
-            Letters.Add(new Letter(c.ToString().ToUpperInvariant()));
+            _uiFactory.StartNew(() => Letters.Add(new Letter(c.ToString().ToUpperInvariant())));
         }
     }
 
