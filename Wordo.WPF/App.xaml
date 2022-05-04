@@ -4,7 +4,6 @@
              xmlns:local="clr-namespace:Wordo.WPF">
 
     <Application.Resources>
-         
     </Application.Resources>
 
 </Application>

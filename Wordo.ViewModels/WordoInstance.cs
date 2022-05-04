@@ -61,7 +61,8 @@ public class WordoInstance : INotifyPropertyChanged
 
         string value = messageWords[0];
 
-        if (value.Length == 1)
+        if (value.Length == 1 &&
+            char.IsLetter(value[0]))
         {
             // Guess a letter
             if (!GuessedLetters.Any(gl => gl.Matches(value)))
