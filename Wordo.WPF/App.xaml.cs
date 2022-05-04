@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Windows;
-using log4net.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +9,7 @@ namespace Wordo.WPF;
 
 public partial class App : Application
 {
-    private string _userSecretsTwitchToken;
+    private string _userSecretsTwitchToken = "";
 
     private IServiceProvider ServiceProvider { get; set; }
     private IConfiguration Configuration { get; set; }
@@ -23,8 +22,6 @@ public partial class App : Application
 
         Configuration = builder.Build();
 
-        // Configure logging
-        XmlConfigurator.Configure();
         base.OnStartup(e);
 
         // Get token from user secrets (for development)

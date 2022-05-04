@@ -21,9 +21,11 @@ namespace Wordo.Core
                 : options[RngCreator.GetNumberBetween(0, options.Count - 1)];
         }
 
-        public static bool None<T>(this IEnumerable<T> elements, Func<T, bool> func = null)
+        public static bool None<T>(this IEnumerable<T> elements, Func<T, bool>? func = null)
         {
-            return !elements.Any(func.Invoke);
+            return func == null
+                ? !elements.Any()
+                : !elements.Any(func.Invoke);
         }
     }
 }

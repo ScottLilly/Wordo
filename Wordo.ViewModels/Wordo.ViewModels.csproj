@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Fody" Version="6.6.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="PropertyChanged.Fody" Version="3.4.0" />
+    <PackageReference Include="TwitchLib.Client" Version="3.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Wordo.Core\Wordo.Core.csproj" />
     <ProjectReference Include="..\Wordo.Models\Wordo.Models.csproj" />
     <ProjectReference Include="..\Wordo.Services\Wordo.Services.csproj" />
