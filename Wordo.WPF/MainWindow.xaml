@@ -15,11 +15,15 @@
     <Grid Margin="5,5,5,5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Letters of the word -->
         <ItemsControl Grid.Row="0" Grid.Column="0"
                       ItemsSource="{Binding Letters}"
                       HorizontalAlignment="Center">
@@ -34,7 +38,7 @@
                 <DataTemplate>
                     <Border BorderBrush="Black"
                             BorderThickness="3"
-                            CornerRadius="4"
+                            CornerRadius="3"
                             MinWidth="90"
                             MinHeight="90"
                             Margin="2,2,2,2">
@@ -42,6 +46,40 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Content="{Binding DisplayValue}"/>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+
+        </ItemsControl>
+
+        <!-- Letters that have been guessed -->
+        <Label Grid.Row="2" Grid.Column="0"
+               HorizontalAlignment="Center"
+               FontSize="20pt"
+               Content="Guessed Letters"/>
+
+        <ItemsControl Grid.Row="3" Grid.Column="0"
+                      ItemsSource="{Binding GuessedLetters}"
+                      HorizontalAlignment="Center">
+
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Black"
+                            BorderThickness="2"
+                            CornerRadius="3"
+                            MinWidth="25"
+                            MinHeight="25"
+                            Margin="2,2,2,2">
+                        <Label FontSize="18pt"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Content="{Binding}"/>
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

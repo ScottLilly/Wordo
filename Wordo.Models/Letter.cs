@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Wordo.Core;
 
 namespace Wordo.Models;
 
@@ -14,5 +15,13 @@ public class Letter : INotifyPropertyChanged
     public Letter(string value)
     {
         _value = value;
+    }
+
+    public void MatchWith(string value)
+    {
+        if (_value.Matches(value))
+        {
+            WasGuessed = true;
+        }
     }
 }

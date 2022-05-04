@@ -14,6 +14,11 @@ namespace Wordo.Core
             return text.Equals(comparisonText, InvariantCultureIgnoreCase);
         }
 
+        public static bool DoesNotMatch(this string text, string comparisonText)
+        {
+            return !text.Matches(comparisonText);
+        }
+
         public static string RandomElement(this List<string> options)
         {
             return options.None()
