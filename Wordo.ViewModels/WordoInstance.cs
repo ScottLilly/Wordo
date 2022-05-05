@@ -26,6 +26,10 @@ public class WordoInstance : INotifyPropertyChanged
     public ObservableCollection<string> GuessedLetters { get; } =
         new ObservableCollection<string>();
 
+    public string LastWord { get; private set; } = "";
+    public string LastWinner { get; private set; } = "";
+
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public WordoInstance(WordoConfiguration wordoConfiguration)
@@ -74,17 +78,31 @@ public class WordoInstance : INotifyPropertyChanged
                     letter.MatchWith(value);
                 }
             }
+
+            // If all letters of the word were guessed, report a win
+            if (Letters.All(l => l.WasGuessed))
+            {
+                HandleWin(e.ChatMessage.DisplayName, _currentWord);
+            }
         }
         else
         {
-            // Guess a word
+            // Guess the word
             if (value.Matches(_currentWord))
             {
-                SendChatMessage($"{e.ChatMessage.DisplayName} correctly guessed the word was '{_currentWord}'");
-
-                StartNewGame();
+                HandleWin(e.ChatMessage.DisplayName, _currentWord);
             }
         }
+    }
+
+    private void HandleWin(string winnerDisplayName, string word)
+    {
+        SendChatMessage($"{winnerDisplayName} correctly guessed the word was '{word}'");
+
+        _uiFactory.StartNew(() => LastWord = word.ToUpper());
+        _uiFactory.StartNew(() => LastWinner = winnerDisplayName);
+
+        StartNewGame();
     }
 
     private void OnChatCommandReceived(object? sender, OnChatCommandReceivedArgs e)
