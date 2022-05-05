@@ -10,7 +10,7 @@
         WindowStyle="ToolWindow"
         FontSize="11pt"
         SizeToContent="WidthAndHeight"
-        MinHeight="275" MinWidth="800">
+        MinHeight="300" MinWidth="800">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -21,6 +21,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="10"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -66,6 +68,7 @@
                Content="Guessed Letters"/>
 
         <ItemsControl Grid.Row="3" Grid.Column="0"
+                      MinHeight="30"
                       ItemsSource="{Binding GuessedLetters}"
                       HorizontalAlignment="Center">
 
@@ -92,6 +95,39 @@
             </ItemsControl.ItemTemplate>
 
         </ItemsControl>
+
+        <Grid Grid.Row="5" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0"
+                   Visibility="{Binding IsRunning,
+                                    Mode=OneWay,
+                                    Converter={StaticResource BooleanToVisibilityConverter}}"
+                   FontSize="20pt"
+                   FontWeight="Bold"
+                   Content="Last Word:"/>
+            <Label Grid.Row="0" Grid.Column="1"
+                   FontSize="20pt"
+                   Content="{Binding LastWord}"/>
+            <Label Grid.Row="0" Grid.Column="2"
+                   Visibility="{Binding IsRunning,
+                                    Mode=OneWay,
+                                    Converter={StaticResource BooleanToVisibilityConverter}}"
+                   FontSize="20pt"
+                   FontWeight="Bold"
+                   Content="Last Winner:"/>
+            <Label Grid.Row="0" Grid.Column="3"
+                   FontSize="20pt"
+                   Content="{Binding LastWinner}"/>
+        </Grid>
 
     </Grid>
 
