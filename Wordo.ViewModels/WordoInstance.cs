@@ -100,8 +100,23 @@ public class WordoInstance : INotifyPropertyChanged
 
     private void OnChatCommandReceived(object? sender, OnChatCommandReceivedArgs e)
     {
+        if (e.Command.CommandText.DoesNotMatch("wordo"))
+        {
+            return;
+        }
+
+        // Default handling of "!wordo" (without parameters) will display chatter's Wordo points.
+        if (e.Command.ArgumentsAsList.None())
+        {
+            var points =
+                _wordoPointsData.UserPoints
+                    .FirstOrDefault(up => up.Id.Equals(e.Command.ChatMessage.UserId))?.Points ?? 0;
+
+            SendChatMessage($"{e.Command.ChatMessage.DisplayName}, you have {points} Wordo points");
+        }
+
+        // Broadcaster and moderator command handling
         if (IsNotFromBroadcasterOrModerator(e.Command.ChatMessage) ||
-            e.Command.CommandText.DoesNotMatch("wordo") ||
             e.Command.ArgumentsAsList.None())
         {
             return;
