@@ -6,6 +6,7 @@ using TwitchLib.Client.Models;
 using TwitchLib.Communication.Events;
 using Wordo.Core;
 using Wordo.Models;
+using Wordo.Services;
 
 namespace Wordo.ViewModels;
 
@@ -17,6 +18,7 @@ public class WordoInstance : INotifyPropertyChanged
     private readonly WordoConfiguration _wordoConfiguration;
     private readonly ConnectionCredentials _credentials;
     private readonly TwitchClient _client = new();
+    private readonly WordoPointsData _wordoPointsData;
 
     private string _currentWord = string.Empty;
 
@@ -35,6 +37,7 @@ public class WordoInstance : INotifyPropertyChanged
     public WordoInstance(WordoConfiguration wordoConfiguration)
     {
         _wordoConfiguration = wordoConfiguration;
+        _wordoPointsData = PersistenceService.GetWordoPointsData();
 
         _credentials =
             new ConnectionCredentials(
@@ -82,7 +85,7 @@ public class WordoInstance : INotifyPropertyChanged
             // If all letters of the word were guessed, report a win
             if (Letters.All(l => l.WasGuessed))
             {
-                HandleWin(e.ChatMessage.DisplayName, _currentWord);
+                HandleWin(e.ChatMessage.UserId, e.ChatMessage.DisplayName, _currentWord);
             }
         }
         else
@@ -90,19 +93,9 @@ public class WordoInstance : INotifyPropertyChanged
             // Guess the word
             if (value.Matches(_currentWord))
             {
-                HandleWin(e.ChatMessage.DisplayName, _currentWord);
+                HandleWin(e.ChatMessage.UserId, e.ChatMessage.DisplayName, _currentWord);
             }
         }
-    }
-
-    private void HandleWin(string winnerDisplayName, string word)
-    {
-        SendChatMessage($"{winnerDisplayName} correctly guessed the word was '{word}'");
-
-        _uiFactory.StartNew(() => LastWord = word.ToUpper());
-        _uiFactory.StartNew(() => LastWinner = winnerDisplayName);
-
-        StartNewGame();
     }
 
     private void OnChatCommandReceived(object? sender, OnChatCommandReceivedArgs e)
@@ -172,6 +165,35 @@ public class WordoInstance : INotifyPropertyChanged
         }
 
         _client.SendMessage(_wordoConfiguration.ChannelName, message);
+    }
+
+    private void HandleWin(string winnerUserId, string winnerDisplayName, string word)
+    {
+        SendChatMessage($"{winnerDisplayName} correctly guessed the word was '{word}'");
+
+        GiveWordoPoints(winnerUserId, winnerDisplayName);
+
+        _uiFactory.StartNew(() => LastWord = word.ToUpper());
+        _uiFactory.StartNew(() => LastWinner = winnerDisplayName);
+
+        StartNewGame();
+    }
+
+    private void GiveWordoPoints(string userId, string displayName)
+    {
+        if (_wordoPointsData.UserPoints.None(up => up.Id.Matches(userId)))
+        {
+            _wordoPointsData.UserPoints.Add(new WordoPointsData.UserPoint
+            {
+                Id = userId,
+                Name = displayName,
+                Points = 0
+            });
+        }
+
+        _wordoPointsData.UserPoints.First(up => up.Id.Matches(userId)).Points += 10;
+
+        PersistenceService.SaveWordoPointsData(_wordoPointsData);
     }
 
     private static bool IsNotFromBroadcasterOrModerator(ChatMessage chatMessage) =>
