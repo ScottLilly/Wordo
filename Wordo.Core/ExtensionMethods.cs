@@ -4,11 +4,6 @@ namespace Wordo.Core
 {
     public static class ExtensionMethods
     {
-        public static bool IsNotNullEmptyOrWhiteSpace(this string text)
-        {
-            return !string.IsNullOrWhiteSpace(text);
-        }
-
         public static bool Matches(this string text, string comparisonText)
         {
             return text.Equals(comparisonText, InvariantCultureIgnoreCase);

@@ -23,7 +23,7 @@ public partial class MainWindow : Window
 
     private void VM_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName.Equals(nameof(WordoInstance.IsRunning)))
+        if (e.PropertyName == nameof(WordoInstance.IsRunning))
         {
             Visibility = VM.IsRunning ? Visibility.Visible : Visibility.Hidden;
         }

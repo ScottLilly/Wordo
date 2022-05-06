@@ -12,15 +12,19 @@ namespace Wordo.ViewModels;
 
 public class WordoInstance : INotifyPropertyChanged
 {
+    #region Backing variables
+
     private readonly TaskFactory _uiFactory =
         new TaskFactory(TaskScheduler.FromCurrentSynchronizationContext());
-
     private readonly WordoConfiguration _wordoConfiguration;
     private readonly ConnectionCredentials _credentials;
     private readonly TwitchClient _client = new();
     private readonly WordoPointsData _wordoPointsData;
-
     private string _currentWord = string.Empty;
+
+    #endregion
+
+    #region Public properties and events
 
     public bool IsRunning { get; private set; }
     public ObservableCollection<Letter> Letters { get; } =
@@ -31,8 +35,9 @@ public class WordoInstance : INotifyPropertyChanged
     public string LastWord { get; private set; } = "";
     public string LastWinner { get; private set; } = "";
 
-
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    #endregion
 
     public WordoInstance(WordoConfiguration wordoConfiguration)
     {
@@ -66,35 +71,26 @@ public class WordoInstance : INotifyPropertyChanged
             return;
         }
 
-        string value = messageWords[0];
+        string message = messageWords[0];
 
-        if (value.Length == 1 &&
-            char.IsLetter(value[0]))
+        // Handle when user message was a single letter that has not already been guessed
+        if (message.Length == 1 &&
+            char.IsLetter(message[0]) &&
+            GuessedLetters.None(gl => gl.Matches(message)))
         {
-            // Guess a letter
-            if (!GuessedLetters.Any(gl => gl.Matches(value)))
-            {
-                _uiFactory.StartNew(() => GuessedLetters.Add(value.ToUpper()));
+            _uiFactory.StartNew(() => GuessedLetters.Add(message.ToUpper()));
 
-                foreach (Letter letter in Letters)
-                {
-                    letter.MatchWith(value);
-                }
-            }
-
-            // If all letters of the word were guessed, report a win
-            if (Letters.All(l => l.WasGuessed))
+            foreach (Letter letter in Letters)
             {
-                HandleWin(e.ChatMessage.UserId, e.ChatMessage.DisplayName, _currentWord);
+                letter.CompareWithGuess(message);
             }
         }
-        else
+
+        // Word was guessed, or all letters were guessed
+        if (message.Matches(_currentWord) ||
+            Letters.All(l => l.WasGuessed))
         {
-            // Guess the word
-            if (value.Matches(_currentWord))
-            {
-                HandleWin(e.ChatMessage.UserId, e.ChatMessage.DisplayName, _currentWord);
-            }
+            HandleWin(e.ChatMessage.UserId, e.ChatMessage.DisplayName, _currentWord);
         }
     }
 
@@ -105,7 +101,7 @@ public class WordoInstance : INotifyPropertyChanged
             return;
         }
 
-        // Default handling of "!wordo" (without parameters) will display chatter's Wordo points.
+        // Default handling of "!wordo" (without parameters) is to display chatter's Wordo points.
         if (e.Command.ArgumentsAsList.None())
         {
             var points =
@@ -115,39 +111,13 @@ public class WordoInstance : INotifyPropertyChanged
             SendChatMessage($"{e.Command.ChatMessage.DisplayName}, you have {points} Wordo points");
         }
 
-        string wordoArgument = e.Command.ArgumentsAsList[0];
-
-        if (wordoArgument.Equals("top", StringComparison.InvariantCultureIgnoreCase))
+        // Handle commands with a parameter (for all users)
+        if (e.Command.ArgumentsAsList[0].Matches("top"))
         {
-            var topPlayers =
-                _wordoPointsData.UserPoints
-                    .OrderByDescending(up => up.Points)
-                    .ThenBy(up => up.Name)
-                    .Take(5);
-
-            string topScores = 
-                $"Top Scores: {string.Join(' ', topPlayers.Select(tp => $"{tp.Name}: {tp.Points}"))}";
-
-            SendChatMessage(topScores);
+            DisplayTopScores();
         }
 
-        // Broadcaster and moderator command handling
-        if (IsNotFromBroadcasterOrModerator(e.Command.ChatMessage) ||
-            e.Command.ArgumentsAsList.None())
-        {
-            return;
-        }
-
-        if (wordoArgument.Matches("start") ||
-            wordoArgument.Matches("restart") ||
-            wordoArgument.Matches("play"))
-        {
-            StartNewGame();
-        }
-        else if (wordoArgument.Matches("stop"))
-        {
-            StopPlaying();
-        }
+        HandleBroadcasterAndModeratorCommands(e.Command);
     }
 
     private void StartNewGame()
@@ -184,6 +154,38 @@ public class WordoInstance : INotifyPropertyChanged
     {
         // If disconnected, automatically attempt to reconnect
         Connect();
+    }
+
+    private void HandleBroadcasterAndModeratorCommands(ChatCommand chatCommand)
+    {
+        if (IsNotFromBroadcasterOrModerator(chatCommand.ChatMessage) ||
+            chatCommand.ArgumentsAsList.None())
+        {
+            return;
+        }
+
+        string wordoArgument = chatCommand.ArgumentsAsList[0];
+
+        if (wordoArgument.Matches("start") ||
+            wordoArgument.Matches("play"))
+        {
+            StartNewGame();
+        }
+        else if (wordoArgument.Matches("stop"))
+        {
+            StopPlaying();
+        }
+    }
+
+    private void DisplayTopScores()
+    {
+        var topPlayers =
+            _wordoPointsData.UserPoints
+                .OrderByDescending(up => up.Points)
+                .ThenBy(up => up.Name)
+                .Take(5);
+
+        SendChatMessage($"Top Scores: {string.Join(' ', topPlayers.Select(tp => $"{tp.Name}: {tp.Points}"))}");
     }
 
     private void SendChatMessage(string message)
