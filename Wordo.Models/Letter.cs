@@ -7,7 +7,7 @@ public class Letter : INotifyPropertyChanged
 {
     private readonly string _value;
 
-    public bool WasGuessed { get; set; }
+    public bool WasGuessed { get; private set; }
     public string DisplayValue => WasGuessed ? _value : "?";
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -17,7 +17,7 @@ public class Letter : INotifyPropertyChanged
         _value = value;
     }
 
-    public void MatchWith(string value)
+    public void CompareWithGuess(string value)
     {
         if (_value.Matches(value))
         {
