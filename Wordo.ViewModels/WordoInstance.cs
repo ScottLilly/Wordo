@@ -115,14 +115,28 @@ public class WordoInstance : INotifyPropertyChanged
             SendChatMessage($"{e.Command.ChatMessage.DisplayName}, you have {points} Wordo points");
         }
 
+        string wordoArgument = e.Command.ArgumentsAsList[0];
+
+        if (wordoArgument.Equals("top", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var topPlayers =
+                _wordoPointsData.UserPoints
+                    .OrderByDescending(up => up.Points)
+                    .ThenBy(up => up.Name)
+                    .Take(5);
+
+            string topScores = 
+                $"Top Scores: {string.Join(' ', topPlayers.Select(tp => $"{tp.Name}: {tp.Points}"))}";
+
+            SendChatMessage(topScores);
+        }
+
         // Broadcaster and moderator command handling
         if (IsNotFromBroadcasterOrModerator(e.Command.ChatMessage) ||
             e.Command.ArgumentsAsList.None())
         {
             return;
         }
-
-        string wordoArgument = e.Command.ArgumentsAsList[0];
 
         if (wordoArgument.Matches("start") ||
             wordoArgument.Matches("restart") ||
