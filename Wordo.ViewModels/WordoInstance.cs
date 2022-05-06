@@ -111,7 +111,7 @@ public class WordoInstance : INotifyPropertyChanged
             SendChatMessage($"{e.Command.ChatMessage.DisplayName}, you have {points} Wordo points");
         }
 
-        // Handle commands with a parameter (all users)
+        // Handle commands with a parameter (for all users)
         if (e.Command.ArgumentsAsList[0].Matches("top"))
         {
             DisplayTopScores();
