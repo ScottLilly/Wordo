@@ -109,6 +109,8 @@ public class WordoInstance : INotifyPropertyChanged
                     .FirstOrDefault(up => up.Id.Equals(e.Command.ChatMessage.UserId))?.Points ?? 0;
 
             SendChatMessage($"{e.Command.ChatMessage.DisplayName}, you have {points} Wordo points");
+
+            return;
         }
 
         // Handle commands with a parameter (for all users)

@@ -10,7 +10,7 @@
         WindowStyle="ToolWindow"
         FontSize="11pt"
         SizeToContent="WidthAndHeight"
-        MinHeight="300" MinWidth="800">
+        MinHeight="325" MinWidth="800">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -23,6 +23,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*" MinHeight="10"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -128,6 +129,18 @@
                    FontSize="20pt"
                    Content="{Binding LastWinner}"/>
         </Grid>
+
+        <StackPanel Grid.Row="6" Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Orientation="Vertical">
+            <Label FontSize="18pt"
+                   Content="Enter a letter into chat and see if it appears in the word"/>
+            <Label FontSize="18pt"
+                   Content="If you think you know the word, you can type the full word into chat."/>
+            <Label FontSize="18pt"
+                   Content="Type !wordo to see how many points you have."/>
+        </StackPanel>
 
     </Grid>
 
