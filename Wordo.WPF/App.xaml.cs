@@ -18,7 +18,8 @@ public partial class App : Application
     {
         var builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddUserSecrets<MainWindow>();
+            .AddJsonFile("appsettings.json", false, true)
+            .AddUserSecrets<MainWindow>(true);
 
         Configuration = builder.Build();
 
@@ -26,7 +27,11 @@ public partial class App : Application
 
         // Get token from user secrets (for development)
         _userSecretsTwitchToken =
-            Configuration.AsEnumerable().First(c => c.Key == "TwitchToken").Value;
+            Configuration
+                .AsEnumerable()
+                .Where(c => c.Key == "TwitchToken")
+                .First(c => !string.IsNullOrWhiteSpace(c.Value))
+                .Value;
 
         var serviceCollection = new ServiceCollection();
         ConfigureServices(serviceCollection);
